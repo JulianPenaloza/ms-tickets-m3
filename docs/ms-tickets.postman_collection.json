@@ -1,0 +1,222 @@
+{
+  "info": {
+    "name": "ms-tickets (Módulo 3)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "token", "value": "" },
+    { "key": "ticketId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Login (ms-usuarios)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Login exitoso (200)', () => pm.response.to.have.status(200));",
+              "const data = pm.response.json();",
+              "pm.collectionVariables.set('token', data.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@empresa.com\",\n  \"password\": \"Admin2026*\"\n}"
+        },
+        "url": "http://127.0.0.1:3001/usuarios/login"
+      }
+    },
+    {
+      "name": "2. GET Listar tickets (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "http://127.0.0.1:3011/tickets"
+      }
+    },
+    {
+      "name": "3. GET Filtrar por prioridad (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Filtro prioridad 200', () => pm.response.to.have.status(200));"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "http://127.0.0.1:3011/tickets?prioridad=alta"
+      }
+    },
+    {
+      "name": "4. POST Crear ticket (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Creado (201)', () => pm.response.to.have.status(201));",
+              "const data = pm.response.json();",
+              "pm.collectionVariables.set('ticketId', data.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"numero\": \"TCK-999\",\n  \"asunto\": \"Ticket de prueba Postman\",\n  \"prioridad\": \"alta\",\n  \"estado\": \"abierto\",\n  \"fecha\": \"2026-11-23\"\n}"
+        },
+        "url": "http://127.0.0.1:3011/tickets"
+      }
+    },
+    {
+      "name": "5. POST Numero duplicado (409)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Conflicto duplicado (409)', () => pm.response.to.have.status(409));"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"numero\": \"TCK-999\",\n  \"asunto\": \"Duplicado\",\n  \"prioridad\": \"media\",\n  \"estado\": \"abierto\",\n  \"fecha\": \"2026-11-23\"\n}"
+        },
+        "url": "http://127.0.0.1:3011/tickets"
+      }
+    },
+    {
+      "name": "6. GET Ticket por ID (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Encontrado (200)', () => pm.response.to.have.status(200));"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "http://127.0.0.1:3011/tickets/{{ticketId}}"
+      }
+    },
+    {
+      "name": "7. PUT Actualizar ticket (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Actualizado (200)', () => pm.response.to.have.status(200));"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"numero\": \"TCK-999\",\n  \"asunto\": \"Ticket actualizado\",\n  \"prioridad\": \"baja\",\n  \"estado\": \"cerrado\",\n  \"fecha\": \"2026-11-23\"\n}"
+        },
+        "url": "http://127.0.0.1:3011/tickets/{{ticketId}}"
+      }
+    },
+    {
+      "name": "8. POST Datos invalidos (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Bad Request (400)', () => pm.response.to.have.status(400));"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"numero\": \"TCK-888\",\n  \"asunto\": \"Prioridad mala\",\n  \"prioridad\": \"urgente\",\n  \"estado\": \"abierto\",\n  \"fecha\": \"2026-11-23\"\n}"
+        },
+        "url": "http://127.0.0.1:3011/tickets"
+      }
+    },
+    {
+      "name": "9. DELETE Eliminar ticket (204)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('Eliminado (204)', () => pm.response.to.have.status(204));"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "http://127.0.0.1:3011/tickets/{{ticketId}}"
+      }
+    },
+    {
+      "name": "10. GET Ticket inexistente (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('No encontrado (404)', () => pm.response.to.have.status(404));"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "http://127.0.0.1:3011/tickets/999999"
+      }
+    }
+  ]
+}
