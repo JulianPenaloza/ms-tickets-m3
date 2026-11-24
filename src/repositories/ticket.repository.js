@@ -2,41 +2,62 @@
 
 async function findAll(prioridad) {
   if (prioridad) {
-    const [rows] = await pool.query('SELECT * FROM tickets WHERE prioridad = ? ORDER BY id ASC', [prioridad]);
+    const [rows] = await pool.query(
+      'SELECT * FROM tickets WHERE prioridad = ? ORDER BY id ASC',
+      [prioridad]
+    );
     return rows;
   }
-  const [rows] = await pool.query('SELECT * FROM tickets ORDER BY id ASC');
+
+  const [rows] = await pool.query(
+    'SELECT * FROM tickets ORDER BY id ASC'
+  );
   return rows;
 }
 
 async function findById(id) {
-  const [rows] = await pool.query('SELECT * FROM tickets WHERE id = ?', [id]);
+  const [rows] = await pool.query(
+    'SELECT * FROM tickets WHERE id = ?',
+    [id]
+  );
   return rows[0] || null;
 }
 
 async function findByNumero(numero) {
-  const [rows] = await pool.query('SELECT * FROM tickets WHERE numero = ?', [numero]);
+  const [rows] = await pool.query(
+    'SELECT * FROM tickets WHERE numero = ?',
+    [numero]
+  );
   return rows[0] || null;
 }
 
-async function create({ numero, asunto, prioridad, estado, fecha }) {
+async function create({ numero, asunto, prioridad, estado, fecha, area_id }) {
   const [result] = await pool.query(
-    'INSERT INTO tickets (numero, asunto, prioridad, estado, fecha) VALUES (?, ?, ?, ?, ?)',
-    [numero, asunto, prioridad, estado, fecha]
+    `INSERT INTO tickets
+      (numero, asunto, prioridad, estado, fecha, area_id)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [numero, asunto, prioridad, estado, fecha, area_id]
   );
+
   return findById(result.insertId);
 }
 
-async function update(id, { numero, asunto, prioridad, estado, fecha }) {
+async function update(id, { numero, asunto, prioridad, estado, fecha, area_id }) {
   await pool.query(
-    'UPDATE tickets SET numero = ?, asunto = ?, prioridad = ?, estado = ?, fecha = ? WHERE id = ?',
-    [numero, asunto, prioridad, estado, fecha, id]
+    `UPDATE tickets
+     SET numero = ?, asunto = ?, prioridad = ?, estado = ?, fecha = ?, area_id = ?
+     WHERE id = ?`,
+    [numero, asunto, prioridad, estado, fecha, area_id, id]
   );
+
   return findById(id);
 }
 
 async function remove(id) {
-  const [result] = await pool.query('DELETE FROM tickets WHERE id = ?', [id]);
+  const [result] = await pool.query(
+    'DELETE FROM tickets WHERE id = ?',
+    [id]
+  );
   return result.affectedRows > 0;
 }
 

@@ -5,7 +5,7 @@ const ESTADOS = ['abierto', 'cerrado'];
 const FECHA_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 function validarTicket(body) {
-  const { numero, asunto, prioridad, estado, fecha } = body || {};
+  const { numero, asunto, prioridad, estado, fecha, area_id } = body || {};
 
   if (typeof numero !== 'string' || !numero.trim()) {
     throw new HttpError(400, 'El campo numero es obligatorio');
@@ -31,8 +31,12 @@ function validarTicket(body) {
     throw new HttpError(400, 'El estado debe ser abierto o cerrado');
   }
 
+  if (!Number.isInteger(area_id) || area_id <= 0) {
+    throw new HttpError(400, 'El campo area_id debe ser un entero positivo');
+  }
+
   if (typeof fecha !== 'string' || !FECHA_REGEX.test(fecha)) {
-    throw new HttpError(400, 'La fecha es obligatoria y debe tener formato AAAA-MM-DD');
+    throw new HttpError(400, 'La fecha debe tener formato AAAA-MM-DD');
   }
 
   const fechaValidada = new Date(`${fecha}T00:00:00.000Z`);
@@ -49,7 +53,8 @@ function validarTicket(body) {
     asunto: asunto.trim(),
     prioridad,
     estado,
-    fecha
+    fecha,
+    area_id
   };
 }
 
@@ -62,7 +67,8 @@ function formatearTicket(row) {
     estado: row.estado,
     fecha: row.fecha instanceof Date
       ? row.fecha.toISOString().slice(0, 10)
-      : String(row.fecha).slice(0, 10)
+      : String(row.fecha).slice(0, 10),
+    area_id: row.area_id
   };
 }
 
